@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Growth Engine's HQ — Client Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-highlight: rgba(255, 255, 255, 0.05);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated Mesh Gradient Background */
+    .bg-mesh {
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse 80% 50% at 20% 40%, rgba(120, 119, 198, 0.3), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 60%, rgba(59, 130, 246, 0.2), transparent),
+        radial-gradient(ellipse 50% 30% at 50% 100%, rgba(236, 72, 153, 0.15), transparent),
+        linear-gradient(180deg, #0a0a0f 0%, #000 100%);
+      z-index: -2;
+    }
+
+    /* Floating Orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      top: -200px;
+      right: -100px;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      bottom: -100px;
+      left: -100px;
+      animation: float 25s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+    }
+
+    /* Glass Effect */
+    .glass {
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.05) 100%
+      );
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .glass-strong {
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0.06) 100%
+      );
+      backdrop-filter: blur(40px) saturate(200%);
+      -webkit-backdrop-filter: blur(40px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+      transform: translateY(-2px);
+    }
+
+    /* Layout */
+    .app {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 8px;
+    }
+
+    .logo {
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .logo h1 {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: 16px;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.8);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .nav-item svg {
+      width: 20px;
+      height: 20px;
+      opacity: 0.7;
+    }
+
+    .nav-item.active svg {
+      opacity: 1;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #22c55e;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px 40px;
+    }
+
+    .header {
+      margin-bottom: 32px;
+    }
+
+    .header h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: rgba(255,255,255,0.4);
+      font-size: 15px;
+    }
+
+    /* Section Title */
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    /* Client Cards Grid */
+    .clients-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 1400px) {
+      .clients-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 900px) {
+      .clients-grid { grid-template-columns: 1fr; }
+      .app { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; }
+      .main { padding: 20px; }
+    }
+
+    /* Client Card */
+    .client-card {
+      overflow: hidden;
+    }
+
+    .client-card.priority-high { border-left: 3px solid #ef4444; }
+    .client-card.priority-medium { border-left: 3px solid #f59e0b; }
+    .client-card.priority-low { border-left: 3px solid #22c55e; }
+
+    .card-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .card-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .client-name {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .client-type {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-high { 
+      background: rgba(239, 68, 68, 0.15); 
+      color: #f87171; 
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    .badge-medium { 
+      background: rgba(245, 158, 11, 0.15); 
+      color: #fbbf24; 
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+    .badge-low { 
+      background: rgba(34, 197, 94, 0.15); 
+      color: #4ade80; 
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .client-fee {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .client-fee span {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.4);
+      -webkit-text-fill-color: rgba(255,255,255,0.4);
+    }
+
+    .task-count {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* Tasks */
+    .card-tasks {
+      padding: 20px 24px;
+    }
+
+    .tasks-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .task-list {
+      list-style: none;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .task-item:last-child {
+      border-bottom: none;
+    }
+
+    .task-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .task-dot.doing { 
+      background: #fbbf24; 
+      box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+    }
+    .task-dot.pending { background: rgba(255,255,255,0.2); }
+    .task-dot.blocked { background: #ef4444; }
+
+    .task-text {
+      font-size: 14px;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .task-text.doing { color: #fff; }
+    .task-text.pending { color: rgba(255,255,255,0.5); }
+    .task-text.assigned { 
+      color: #60a5fa; 
+      font-weight: 500;
+    }
+
+    /* Card Footer */
+    .card-footer {
+      padding: 20px 24px;
+      background: rgba(0,0,0,0.2);
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .next-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .next-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.9);
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      padding: 24px;
+      border-radius: 20px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    @media (max-width: 1200px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* Table */
+    .table-container {
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th {
+      text-align: left;
+      padding: 20px 24px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    td {
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* Team Grid */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 1200px) {
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .team-card {
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .team-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .team-role {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 12px;
+    }
+
+    .team-email {
+      font-size: 12px;
+      color: #60a5fa;
+    }
+
+    /* Revenue Section */
+    .revenue-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      height: 300px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .bar-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bar {
+      width: 100%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+      border-radius: 8px 8px 0 0;
+      min-height: 20px;
+      position: relative;
+    }
+
+    .bar-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+    }
+
+    .bar-value {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* Milestones */
+    .milestone-item {
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .milestone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .milestone-title {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .milestone-client {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+    }
+
+    .milestone-desc {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.02);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.15);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-mesh"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar glass-strong">
+      <div class="logo">
+        <h1>The Growth Engine's HQ</h1>
+        <p>Client Dashboard</p>
+      </div>
+
+      <nav>
+        <button class="nav-item active" onclick="showTab('overview', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Overview
+        </button>
+        <button class="nav-item" onclick="showTab('clients', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Clients
+        </button>
+        <button class="nav-item" onclick="showTab('milestones', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          Milestones
+        </button>
+        <button class="nav-item" onclick="showTab('revenue', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Revenue
+        </button>
+        <button class="nav-item" onclick="showTab('team', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Team
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-badge">
+          <div class="status-dot"></div>
+          <div>
+            <div style="font-size: 14px; font-weight: 500;">Claude Online</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.4);">Last sync: Just now</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="header">
+        <h2>Allen Anant Thomas</h2>
+        <p>6 active clients</p>
+      </div>
+
+      <!-- Overview Tab -->
+      <div id="overview" class="tab-content active">
+        <!-- Client Cards -->
+        <div class="section-title">Client Tasks</div>
+        <div class="clients-grid">
+          <!-- Hoogah -->
+          <div class="client-card glass-card priority-high">
+            <div class="card-header">
+              <div class="card-header-top">
+                <div>
+                  <div class="client-name">Hoogah</div>
+                  <div class="client-type">B2B SaaS — Intentional Networking</div>
+                </div>
+                <span class="badge badge-high">High</span>
+              </div>
+              <div class="card-meta">
+                <div class="task-count">4 tasks</div>
+              </div>
+            </div>
+            <div class="card-tasks">
+              <div class="tasks-label">Remaining Tasks</div>
+              <ul class="task-list">
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text doing">Event Organizer Funnel — in build</span></li>
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text doing">10 reels + 15 creatives — in progress</span></li>
+                <li class="task-item"><div class="task-dot pending"></div><span class="task-text pending">Meta + LinkedIn ads launch</span></li>
+                <li class="task-item"><div class="task-dot pending"></div><span class="task-text pending">Website go-live</span></li>
+              </ul>
+            </div>
+            <div class="card-footer">
+              <div class="next-label">Next Action</div>
+              <div class="next-text">Complete Event Organizer landing page + Calendly setup</div>
+            </div>
+          </div>
+
+          <!-- Restart Medical -->
+          <div class="client-card glass-card priority-high">
+            <div class="card-header">
+              <div class="card-header-top">
+                <div>
+                  <div class="client-name">Restart Medical</div>
+                  <div class="client-type">Medical Aesthetics — London & Yorkshire</div>
+                </div>
+                <span class="badge badge-high">High</span>
+              </div>
+              <div class="card-meta">
+                <div class="task-count">2 tasks</div>
+              </div>
+            </div>
+            <div class="card-tasks">
+              <div class="tasks-label">Remaining Tasks</div>
+              <ul class="task-list">
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text doing">WhatsApp campaign funnel — monitoring results</span></li>
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text doing">24 script revision feedback items</span></li>
+              </ul>
+            </div>
+            <div class="card-footer">
+              <div class="next-label">Next Action</div>
+              <div class="next-text">Monitor WhatsApp campaign performance</div>
+            </div>
+          </div>
+
+          <!-- SideXSide -->
+          <div class="client-card glass-card priority-medium">
+            <div class="card-header">
+              <div class="card-header-top">
+                <div>
+                  <div class="client-name">SideXSide</div>
+                  <div class="client-type">Campus Safety SaaS — Own Business</div>
+                </div>
+                <span class="badge badge-medium">Medium</span>
+              </div>
+              <div class="card-meta">
+                <div class="task-count">6 tasks</div>
+              </div>
+            </div>
+            <div class="card-tasks">
+              <div class="tasks-label">Remaining Tasks</div>
+              <ul class="task-list">
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text doing">Create additional website pages</span></li>
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text doing">Start blogging</span></li>
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text doing">Record interview content, edit and publish</span></li>
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text doing">Launch Meta ads ASAP</span></li>
+                <li class="task-item"><div class="task-dot pending"></div><span class="task-text pending">University outreach (25-100/day)</span></li>
+                <li class="task-item"><div class="task-dot pending"></div><span class="task-text pending">Secure 2-3 pilot university partners</span></li>
+              </ul>
+            </div>
+            <div class="card-footer">
+              <div class="next-label">Next Action</div>
+              <div class="next-text">Launch first 25 university outreach emails today</div>
+            </div>
+          </div>
+
+          <!-- Dr Sw Clinics -->
+          <div class="client-card glass-card priority-high">
+            <div class="card-header">
+              <div class="card-header-top">
+                <div>
+                  <div class="client-name">Dr Sw Clinics</div>
+                  <div class="client-type">Medical Aesthetics — Harley Street, London</div>
+                </div>
+                <span class="badge badge-high">High</span>
+              </div>
+              <div class="card-meta">
+                <div class="task-count">4 tasks</div>
+              </div>
+            </div>
+            <div class="card-tasks">
+              <div class="tasks-label">Remaining Tasks</div>
+              <ul class="task-list">
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text doing">Give edited Sylfirm video to Dr. Sw</span></li>
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text doing">Launch more WhatsApp campaigns (desensitize/sensitize templates)</span></li>
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text assigned">[HARSHIT] Send SEO audit report to Dr. Sw</span></li>
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text doing">Monthly: 12 reels + 15 posts</span></li>
+              </ul>
+            </div>
+            <div class="card-footer">
+              <div class="next-label">Next Action</div>
+              <div class="next-text">Deliver edited Sylfirm video + launch WhatsApp campaigns</div>
+            </div>
+          </div>
+
+          <!-- Frenchify -->
+          <div class="client-card glass-card priority-low">
+            <div class="card-header">
+              <div class="card-header-top">
+                <div>
+                  <div class="client-name">Frenchify</div>
+                  <div class="client-type">EdTech — TEF Canada Prep</div>
+                </div>
+                <span class="badge badge-low">Low</span>
+              </div>
+              <div class="card-meta">
+                <div class="task-count">Automated</div>
+              </div>
+            </div>
+            <div class="card-tasks">
+              <div class="tasks-label">Weekly Task</div>
+              <ul class="task-list">
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text doing">Make new webinar page every Monday morning and send to ads team</span></li>
+              </ul>
+            </div>
+            <div class="card-footer">
+              <div class="next-label">Status</div>
+              <div class="next-text">Meta ads automated — weekly webinar update only</div>
+            </div>
+          </div>
+
+          <!-- KP Singh -->
+          <div class="client-card glass-card priority-low">
+            <div class="card-header">
+              <div class="card-header-top">
+                <div>
+                  <div class="client-name">KP Singh</div>
+                  <div class="client-type">NuWave Music — Punjabi Artist Dev</div>
+                </div>
+                <span class="badge badge-low">Low</span>
+              </div>
+              <div class="card-meta">
+                <div class="task-count">Automated</div>
+              </div>
+            </div>
+            <div class="card-tasks">
+              <div class="tasks-label">Status</div>
+              <ul class="task-list">
+                <li class="task-item"><div class="task-dot doing"></div><span class="task-text doing">Meta Ads and Google Ads ongoing</span></li>
+              </ul>
+            </div>
+            <div class="card-footer">
+              <div class="next-label">Status</div>
+              <div class="next-text">Fully automated — no manual work needed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clients Tab -->
+      <div id="clients" class="tab-content">
+        <div class="table-container glass">
+          <table>
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Type</th>
+                <th>Monthly Fee</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 600;">Hoogah</td>
+                <td style="color: rgba(255,255,255,0.5);">B2B SaaS — Intentional Networking</td>
+                <td style="font-weight: 600;">$2,400</td>
+                <td><span class="badge badge-high">High</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600;">Restart Medical</td>
+                <td style="color: rgba(255,255,255,0.5);">Medical Aesthetics — London & Yorkshire</td>
+                <td style="font-weight: 600;">£1,600 (~$2,000)</td>
+                <td><span class="badge badge-high">High</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600;">SideXSide</td>
+                <td style="color: rgba(255,255,255,0.5);">Campus Safety SaaS — Own Business</td>
+                <td style="font-weight: 600;">$1,900</td>
+                <td><span class="badge badge-medium">Medium</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600;">Dr Sw Clinics</td>
+                <td style="color: rgba(255,255,255,0.5);">Medical Aesthetics — Harley Street, London</td>
+                <td style="font-weight: 600;">£850 (~$1,050)</td>
+                <td><span class="badge badge-high">High</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600;">Frenchify</td>
+                <td style="color: rgba(255,255,255,0.5);">EdTech — TEF Canada Prep</td>
+                <td style="font-weight: 600;">₹40,000 (~$480)</td>
+                <td><span class="badge badge-low">Low</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600;">KP Singh</td>
+                <td style="color: rgba(255,255,255,0.5);">NuWave Music — Punjabi Artist Dev</td>
+                <td style="font-weight: 600;">₹30,000 (~$360)</td>
+                <td><span class="badge badge-low">Low</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Milestones Tab -->
+      <div id="milestones" class="tab-content">
+        <div class="table-container glass">
+          <div class="milestone-item">
+            <div class="milestone-header">
+              <span class="milestone-title">Event Organizer Funnel</span>
+              <span class="milestone-client">Hoogah</span>
+            </div>
+            <div class="milestone-desc">Landing page → Calendly → Email nurture</div>
+          </div>
+          <div class="milestone-item">
+            <div class="milestone-header">
+              <span class="milestone-title">10 Reels + 15 Creatives</span>
+              <span class="milestone-client">Hoogah</span>
+            </div>
+            <div class="milestone-desc">Intentional networking themes</div>
+          </div>
+          <div class="milestone-item">
+            <div class="milestone-header">
+              <span class="milestone-title">WhatsApp Campaign Funnel</span>
+              <span class="milestone-client">Restart Medical</span>
+            </div>
+            <div class="milestone-desc">Meta ad → Landing → WhatsApp → Booking</div>
+          </div>
+          <div class="milestone-item">
+            <div class="milestone-header">
+              <span class="milestone-title">24 Script Revisions</span>
+              <span class="milestone-client">Restart Medical</span>
+            </div>
+            <div class="milestone-desc">Address feedback items</div>
+          </div>
+          <div class="milestone-item">
+            <div class="milestone-header">
+              <span class="milestone-title">Additional Website Pages</span>
+              <span class="milestone-client">SideXSide</span>
+            </div>
+            <div class="milestone-desc">New pages beyond homepage</div>
+          </div>
+          <div class="milestone-item">
+            <div class="milestone-header">
+              <span class="milestone-title">Blog Section</span>
+              <span class="milestone-client">SideXSide</span>
+            </div>
+            <div class="milestone-desc">Content creation started</div>
+          </div>
+          <div class="milestone-item">
+            <div class="milestone-header">
+              <span class="milestone-title">Interview Content</span>
+              <span class="milestone-client">SideXSide</span>
+            </div>
+            <div class="milestone-desc">Record, edit and publish</div>
+          </div>
+          <div class="milestone-item">
+            <div class="milestone-header">
+              <span class="milestone-title">Meta Ads Launch</span>
+              <span class="milestone-client">SideXSide</span>
+            </div>
+            <div class="milestone-desc">Launch as soon as possible</div>
+          </div>
+          <div class="milestone-item">
+            <div class="milestone-header">
+              <span class="milestone-title">Edited Sylfirm Video</span>
+              <span class="milestone-client">Dr Sw Clinics</span>
+            </div>
+            <div class="milestone-desc">Deliver to Dr. Sw</div>
+          </div>
+          <div class="milestone-item">
+            <div class="milestone-header">
+              <span class="milestone-title">WhatsApp Campaigns</span>
+              <span class="milestone-client">Dr Sw Clinics</span>
+            </div>
+            <div class="milestone-desc">Launch more campaigns with desensitize/sensitize templates</div>
+          </div>
+          <div class="milestone-item">
+            <div class="milestone-header">
+              <span class="milestone-title">SEO Audit Report</span>
+              <span class="milestone-client">Dr Sw Clinics</span>
+            </div>
+            <div class="milestone-desc">[HARSHIT] Send to Dr. Sw</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue Tab -->
+      <div id="revenue" class="tab-content">
+        <!-- Stats -->
+        <div class="stats">
+          <div class="stat-card glass-card">
+            <div class="stat-label">Monthly Revenue</div>
+            <div class="stat-value">$8,190</div>
+            <div class="stat-sub">Across all 6 clients</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-label">Active Tasks</div>
+            <div class="stat-value">14</div>
+            <div class="stat-sub">of 18 total tasks</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-label">Avg Client Value</div>
+            <div class="stat-value">$1,365</div>
+            <div class="stat-sub">Per month</div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-label">Annual Run Rate</div>
+            <div class="stat-value">$98,280</div>
+            <div class="stat-sub">Projected revenue</div>
+          </div>
+        </div>
+
+        <!-- Revenue Breakdown -->
+        <div class="section-title">Revenue by Client</div>
+        <div class="table-container glass">
+          <table>
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Monthly Fee</th>
+                <th>USD Equivalent</th>
+                <th>% of Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 600;">Hoogah</td>
+                <td>$2,400 USD</td>
+                <td style="font-weight: 600;">$2,400</td>
+                <td style="color: rgba(255,255,255,0.5);">29%</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600;">Restart Medical</td>
+                <td>£1,600 GBP</td>
+                <td style="font-weight: 600;">~$2,000</td>
+                <td style="color: rgba(255,255,255,0.5);">24%</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600;">SideXSide</td>
+                <td>$1,900 USD</td>
+                <td style="font-weight: 600;">$1,900</td>
+                <td style="color: rgba(255,255,255,0.5);">23%</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600;">Dr Sw Clinics</td>
+                <td>£850 GBP</td>
+                <td style="font-weight: 600;">~$1,050</td>
+                <td style="color: rgba(255,255,255,0.5);">13%</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600;">Frenchify</td>
+                <td>₹40,000 INR</td>
+                <td style="font-weight: 600;">~$480</td>
+                <td style="color: rgba(255,255,255,0.5);">6%</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600;">KP Singh</td>
+                <td>₹30,000 INR</td>
+                <td style="font-weight: 600;">~$360</td>
+                <td style="color: rgba(255,255,255,0.5);">4%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Team Tab -->
+      <div id="team" class="tab-content">
+        <div class="section-title">Core Team</div>
+        <div class="team-grid">
+          <div class="team-card glass-card">
+            <div class="avatar">A</div>
+            <div class="team-name">Allen Anant Thomas</div>
+            <div class="team-role">Founder — Strategy — Client Management</div>
+            <div class="team-email">allen@thegrowthengine.net</div>
+          </div>
+          <div class="team-card glass-card">
+            <div class="avatar">T</div>
+            <div class="team-name">Anthony</div>
+            <div class="team-role">Operations — Project Coordination</div>
+          </div>
+          <div class="team-card glass-card">
+            <div class="avatar">E</div>
+            <div class="team-name">Abhijeet</div>
+            <div class="team-role">Editor — Video Production</div>
+          </div>
+          <div class="team-card glass-card">
+            <div class="avatar">H</div>
+            <div class="team-name">Harshit</div>
+            <div class="team-role">SEO / Digital Marketing</div>
+            <div class="team-email">hrshtbndl@gmail.com</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function showTab(tabName, btn) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Show selected tab
+      document.getElementById(tabName).classList.add('active');
+      
+      // Update nav
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      btn.classList.add('active');
+    }
+  </script>
+</body>
+</html>
