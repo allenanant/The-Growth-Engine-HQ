@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Growth Engine's HQ — Client Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -958,17 +959,24 @@
       btn.classList.add('active');
     }
 
-    // ==================== STORAGE ====================
-    const STORAGE_KEY = 'tge_assets_v4';
-    const SEED_KEY = 'tge_assets_seeded_v4';
+    // ==================== SUPABASE ====================
+    const SUPABASE_URL  = 'https://hwscwaclcrrflynguvof.supabase.co';
+    const SUPABASE_ANON = 'sb_publishable_a3sJfz_wY8q1byE9cgyEZQ__2sYOHFj';
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-    function loadAll() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
-    }
-    function saveAll(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-    function getClientAssets(client) { return loadAll()[client] || []; }
-    function setClientAssets(client, assets) {
-      const all = loadAll(); all[client] = assets; saveAll(all);
+    // Map Supabase snake_case row → camelCase asset object
+    function rowToAsset(row) {
+      return {
+        id:        row.id,
+        name:      row.name       || '',
+        type:      row.type       || '',
+        status:    row.status     || 'pending',
+        driveLink: row.drive_link || '',
+        month:     row.month      || '',
+        assignee:  row.assignee   || '',
+        notes:     row.notes      || '',
+        dateAdded: row.date_added || '',
+      };
     }
 
     // ==================== SEED DATA — RESTART MEDICAL (from Notion CSV) ====================
@@ -1032,37 +1040,63 @@
       {id:'rma_sc30',name:'Script 30 — The Restart Promise',type:'reel',status:'sent-editing',driveLink:'https://drive.google.com/drive/folders/1SBFu1nwLd4mJ-jfg50KByW0fKtayZ2Mz?usp=sharing',month:'',assignee:'',notes:'Restart Medical values and transformation promise — sent for editing',dateAdded:'2026-01-25'},
     ];
 
-    // Auto-seed on first load
-    (function seedIfNeeded() {
-      if (localStorage.getItem(SEED_KEY)) return;
-      const data = loadAll();
-      if (!data.restart || data.restart.length === 0) data.restart = RESTART_SEED;
-      saveAll(data);
-      localStorage.setItem(SEED_KEY, '1');
-    })();
+    // Seed Supabase on first run (if table is empty for this client)
+    async function seedClientIfNeeded(clientKey) {
+      if (clientKey !== 'restart') return;
+      const { count } = await db.from('assets')
+        .select('*', { count: 'exact', head: true })
+        .eq('client', clientKey);
+      if (count > 0) return;
+      const rows = RESTART_SEED.map(a => ({
+        client:     'restart',
+        name:       a.name,
+        type:       a.type,
+        status:     a.status,
+        drive_link: a.driveLink,
+        month:      a.month,
+        assignee:   a.assignee,
+        notes:      a.notes,
+        date_added: a.dateAdded,
+      }));
+      await db.from('assets').insert(rows);
+    }
 
     // ==================== STATE ====================
     let currentClient = null;
-    let currentMonth  = null;   // null = no month selected yet; '' = Unscheduled
+    let currentMonth  = null;   // null = none selected; '' = Unscheduled
+    let currentAssets = [];     // all assets for the active client (fetched from Supabase)
     let editingId     = null;
 
     // ==================== CLIENT SELECTOR (Step 1) ====================
-    function selectAssetClient(clientKey, pill) {
+    async function selectAssetClient(clientKey, pill) {
       currentClient = clientKey;
       currentMonth  = null;
       document.querySelectorAll('.client-pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
       document.getElementById('client-assets-panel').style.display = 'none';
       document.getElementById('no-client-placeholder').style.display = 'none';
+
+      // Show loading while fetching
+      const msel = document.getElementById('month-selector');
+      msel.style.display = 'flex';
+      msel.innerHTML = '<span class="month-selector-label" style="color:rgba(255,255,255,0.4);">Loading…</span>';
+
+      await seedClientIfNeeded(clientKey);
+
+      const { data, error } = await db.from('assets').select('*').eq('client', clientKey);
+      currentAssets = (data || []).map(rowToAsset);
+
+      if (error) {
+        msel.innerHTML = '<span style="color:#f87171;font-size:13px;">⚠ Could not load assets</span>';
+        return;
+      }
       renderMonthPills();
-      document.getElementById('month-selector').style.display = 'flex';
     }
 
     // ==================== MONTH SELECTOR (Step 2) ====================
     function renderMonthPills() {
-      const assets  = getClientAssets(currentClient);
-      const months  = [...new Set(assets.map(a => a.month || ''))].sort();
-      const wrap    = document.getElementById('month-selector');
+      const months = [...new Set(currentAssets.map(a => a.month || ''))].sort();
+      const wrap   = document.getElementById('month-selector');
       wrap.innerHTML = '<span class="month-selector-label">Month:</span>';
       months.forEach(m => {
         const btn = document.createElement('button');
@@ -1090,7 +1124,7 @@
     }
 
     function renderQuota() {
-      const assets   = getClientAssets(currentClient).filter(a => (a.month || '') === currentMonth);
+      const assets   = currentAssets.filter(a => (a.month || '') === currentMonth);
       const reels    = assets.filter(a => a.type === 'reel').length;
       const graphics = assets.filter(a => a.type === 'graphic').length;
       const label    = fmtMonthFull(currentMonth);
@@ -1127,7 +1161,7 @@
     function renderTable() {
       if (!currentClient || currentMonth === null) return;
 
-      const all      = getClientAssets(currentClient).filter(a => (a.month || '') === currentMonth);
+      const all      = currentAssets.filter(a => (a.month || '') === currentMonth);
       const reels    = all.filter(a => a.type === 'reel').sort(byAssetOrder);
       const graphics = all.filter(a => a.type === 'graphic').sort(byAssetOrder);
       const others   = all.filter(a => a.type !== 'reel' && a.type !== 'graphic').sort(byAssetOrder);
@@ -1233,7 +1267,7 @@
       document.getElementById('f-type').value = '';
       document.getElementById('f-status').value = 'posted';
       document.getElementById('f-link').value = '';
-      document.getElementById('f-month').value = currentMonthKey();
+      document.getElementById('f-month').value = currentMonth || '';
       document.getElementById('f-assignee').value = '';
       document.getElementById('f-notes').value = '';
       document.getElementById('modal-overlay').classList.add('open');
@@ -1241,8 +1275,7 @@
     }
 
     function editAsset(id) {
-      const assets = getClientAssets(currentClient);
-      const asset = assets.find(a => a.id === id);
+      const asset = currentAssets.find(a => a.id === id);
       if (!asset) return;
       editingId = id;
       document.getElementById('modal-title').textContent = 'Edit Asset';
@@ -1250,7 +1283,7 @@
       document.getElementById('f-type').value = asset.type;
       document.getElementById('f-status').value = asset.status;
       document.getElementById('f-link').value = asset.driveLink || '';
-      document.getElementById('f-month').value = asset.month || currentMonthKey();
+      document.getElementById('f-month').value = asset.month || '';
       document.getElementById('f-assignee').value = asset.assignee || '';
       document.getElementById('f-notes').value = asset.notes || '';
       document.getElementById('modal-overlay').classList.add('open');
@@ -1266,44 +1299,49 @@
       if (e.target === document.getElementById('modal-overlay')) closeModal();
     }
 
-    function saveAsset() {
+    async function saveAsset() {
       const name = document.getElementById('f-name').value.trim();
       const type = document.getElementById('f-type').value;
       if (!name) { document.getElementById('f-name').focus(); return; }
       if (!type) { document.getElementById('f-type').focus(); return; }
 
-      const asset = {
-        id: editingId || ('a_' + Date.now() + '_' + Math.random().toString(36).slice(2,6)),
+      const row = {
+        client:     currentClient,
         name,
         type,
-        status: document.getElementById('f-status').value || 'posted',
-        driveLink: document.getElementById('f-link').value.trim(),
-        month: document.getElementById('f-month').value || currentMonthKey(),
-        assignee: document.getElementById('f-assignee').value,
-        notes: document.getElementById('f-notes').value.trim(),
-        dateAdded: editingId
-          ? (getClientAssets(currentClient).find(a => a.id === editingId) || {}).dateAdded || new Date().toISOString().slice(0,10)
-          : new Date().toISOString().slice(0,10)
+        status:     document.getElementById('f-status').value || 'posted',
+        drive_link: document.getElementById('f-link').value.trim(),
+        month:      document.getElementById('f-month').value || '',
+        assignee:   document.getElementById('f-assignee').value,
+        notes:      document.getElementById('f-notes').value.trim(),
+        date_added: new Date().toISOString().slice(0, 10),
       };
 
-      let assets = getClientAssets(currentClient);
-      if (editingId) {
-        assets = assets.map(a => a.id === editingId ? asset : a);
-      } else {
-        assets.unshift(asset);
-      }
-      setClientAssets(currentClient, assets);
       closeModal();
+
+      if (editingId) {
+        const { error } = await db.from('assets').update(row).eq('id', editingId);
+        if (!error) {
+          const idx = currentAssets.findIndex(a => a.id === editingId);
+          if (idx >= 0) currentAssets[idx] = rowToAsset({ ...row, id: editingId, date_added: currentAssets[idx].dateAdded });
+        }
+      } else {
+        const { data: inserted, error } = await db.from('assets').insert(row).select().single();
+        if (!error && inserted) currentAssets.push(rowToAsset(inserted));
+      }
+
       renderQuota();
       renderTable();
     }
 
-    function deleteAsset(id) {
+    async function deleteAsset(id) {
       if (!confirm('Delete this asset?')) return;
-      let assets = getClientAssets(currentClient).filter(a => a.id !== id);
-      setClientAssets(currentClient, assets);
-      renderQuota();
-      renderTable();
+      const { error } = await db.from('assets').delete().eq('id', id);
+      if (!error) {
+        currentAssets = currentAssets.filter(a => a.id !== id);
+        renderQuota();
+        renderTable();
+      }
     }
 
     // ==================== KEYBOARD ====================
