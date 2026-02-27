@@ -262,13 +262,46 @@
     .type-banner { background: rgba(251,191,36,0.15); color: #fde68a; border: 1px solid rgba(251,191,36,0.2); }
     .type-deliverable { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.18); }
 
+    /* Month selector */
+    .month-selector {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 24px;
+    }
+    .month-selector-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
+      color: rgba(255,255,255,0.3); margin-right: 4px;
+    }
+    .month-pill {
+      padding: 8px 18px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5);
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;
+    }
+    .month-pill:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); }
+    .month-pill.active {
+      background: linear-gradient(135deg,rgba(102,126,234,0.25),rgba(118,75,162,0.25));
+      border-color: rgba(102,126,234,0.5); color: #fff;
+    }
+
+    /* Asset sections */
+    .asset-section { margin-bottom: 28px; }
+    .asset-section-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: rgba(255,255,255,0.4);
+    }
+    .asset-section-count {
+      padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.45); text-transform: none; letter-spacing: 0;
+    }
+
     .status-pill {
       font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
       text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap;
     }
-    .status-done { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
-    .status-review { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
-    .status-pending { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.1); }
+    .status-posted   { background: rgba(34,197,94,0.12);   color: #4ade80;           border: 1px solid rgba(34,197,94,0.25); }
+    .status-edited   { background: rgba(251,191,36,0.12);  color: #fbbf24;           border: 1px solid rgba(251,191,36,0.25); }
+    .status-sent-editing { background: rgba(102,126,234,0.15); color: #a5b4fc;       border: 1px solid rgba(102,126,234,0.3); }
+    .status-pending  { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); }
 
     .drive-link {
       display: inline-flex; align-items: center; gap: 6px; color: #60a5fa;
@@ -658,12 +691,17 @@
           </div>
         </div>
 
-        <!-- Client Selector -->
+        <!-- Step 1: Client Selector -->
         <div class="client-selector">
           <button class="client-pill" onclick="selectAssetClient('hoogah',this)">Hoogah</button>
           <button class="client-pill" onclick="selectAssetClient('restart',this)">Restart Medical</button>
           <button class="client-pill" onclick="selectAssetClient('sidexside',this)">SideXSide</button>
           <button class="client-pill" onclick="selectAssetClient('drsw',this)">Dr Sw Clinics</button>
+        </div>
+
+        <!-- Step 2: Month Selector (shown after client selected) -->
+        <div class="month-selector" id="month-selector" style="display:none;">
+          <!-- filled dynamically -->
         </div>
 
         <!-- No-client placeholder -->
@@ -672,17 +710,17 @@
             <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/>
           </svg>
           <p>Select a client above to view their assets</p>
-          <small>Track reels, graphic posts, banners &amp; deliverables with Drive links</small>
+          <small>Then choose the month of service to see deliverables</small>
         </div>
 
-        <!-- Client Assets Panel -->
+        <!-- Client Assets Panel (shown after month selected) -->
         <div id="client-assets-panel" style="display:none;">
 
           <!-- Monthly Quota Progress -->
           <div class="quota-grid" id="quota-grid">
             <div class="quota-card progress-reels">
               <div class="quota-header">
-                <span class="quota-label">🎬 Reels This Month</span>
+                <span class="quota-label">🎬 Reels</span>
                 <span class="quota-month" id="quota-month-label"></span>
               </div>
               <div class="quota-count" id="reels-count">0 <span>/ 10</span></div>
@@ -693,7 +731,7 @@
             </div>
             <div class="quota-card progress-graphics">
               <div class="quota-header">
-                <span class="quota-label">🖼 Graphic Posts This Month</span>
+                <span class="quota-label">🖼 Graphic Posts</span>
                 <span class="quota-month" id="quota-month-label2"></span>
               </div>
               <div class="quota-count" id="graphics-count">0 <span>/ 15</span></div>
@@ -706,42 +744,15 @@
 
           <!-- Toolbar -->
           <div class="assets-toolbar">
-            <div class="filter-pills">
-              <button class="filter-pill active" onclick="setFilter('all',this)">All</button>
-              <button class="filter-pill" onclick="setFilter('reel',this)">Reels</button>
-              <button class="filter-pill" onclick="setFilter('graphic',this)">Graphics</button>
-              <button class="filter-pill" onclick="setFilter('banner',this)">Banners</button>
-              <button class="filter-pill" onclick="setFilter('deliverable',this)">Deliverables</button>
-            </div>
+            <div></div>
             <button class="btn-add" onclick="openModal()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Add Asset
             </button>
           </div>
 
-          <!-- Asset Table -->
-          <div class="assets-table-wrap glass">
-            <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Asset Name</th>
-                  <th>Type</th>
-                  <th>Status</th>
-                  <th>Drive Link</th>
-                  <th>Month</th>
-                  <th>Added</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="assets-tbody">
-              </tbody>
-            </table>
-            <div id="assets-empty" class="empty-state" style="display:none;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2z"/></svg>
-              No assets yet for this filter.<br><small style="font-size:12px;">Click <strong>Add Asset</strong> to get started.</small>
-            </div>
-          </div>
+          <!-- Asset Sections (Reels + Graphics, rendered dynamically) -->
+          <div id="assets-sections"></div>
 
         </div>
       </div>
@@ -899,9 +910,10 @@
           <div class="form-group">
             <label class="form-label">Status</label>
             <select class="form-select" id="f-status">
+              <option value="posted">Posted</option>
+              <option value="edited">Edited</option>
+              <option value="sent-editing">Sent for Editing</option>
               <option value="pending">Pending</option>
-              <option value="review">In Review</option>
-              <option value="done">Done</option>
             </select>
           </div>
         </div>
@@ -947,8 +959,8 @@
     }
 
     // ==================== STORAGE ====================
-    const STORAGE_KEY = 'tge_assets_v2';
-    const SEED_KEY = 'tge_assets_seeded_v2';
+    const STORAGE_KEY = 'tge_assets_v3';
+    const SEED_KEY = 'tge_assets_seeded_v3';
 
     function loadAll() {
       try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
@@ -962,62 +974,62 @@
     // ==================== SEED DATA — RESTART MEDICAL (from Notion CSV) ====================
     const RESTART_SEED = [
       // ── December 2024 — 15 Static Graphic Ads (all posted) ──
-      {id:'rma_s01',name:'Static 1 — P Shot (Loss Aversion)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/1sGyvPlAl6T2z_gXCmD6YBcpA_XmDAnD7?usp=sharing',month:'2024-12',assignee:'Soumya GD',notes:'P Shot Ad 1 — Loss Aversion angle',dateAdded:'2024-12-01'},
-      {id:'rma_s02',name:'Static 2 — P Shot (Identity)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/1baokz9vgrPY2em5HHVm0JJK0ehFL6Gq_?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'P Shot Ad 2 — Identity angle',dateAdded:'2024-12-01'},
-      {id:'rma_s03',name:'Static 3 — P Shot (Social Comparison)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/1jZ7yNaGjdNHJ_aST2lxOUsFn1TqtbyIU?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'P Shot Ad 3 — Social Comparison angle',dateAdded:'2024-12-01'},
-      {id:'rma_s04',name:'Static 4 — P Shot (Economic Reframing)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/1Lgnn2qWej80VwV11PcWvb0pPyvNQJlo4?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'P Shot Ad 4 — Economic Reframing angle',dateAdded:'2024-12-01'},
-      {id:'rma_s05',name:'Static 5 — P Shot (Urgency)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/1eswAku-u60TtO9goqUVD_Wmw2tDhfiY6?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'P Shot Ad 5 — Urgency angle',dateAdded:'2024-12-01'},
-      {id:'rma_s06',name:'Static 6 — Girth Enhancement (Unfair Advantage)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/1lMyZgckmtTmd6uMn_Wm0TeEu35igGY3T?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'Girth Ad 1 — Unfair Advantage angle',dateAdded:'2024-12-01'},
-      {id:'rma_s07',name:'Static 7 — Girth Enhancement (Reverse Psychology)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/1tSutPOiDc0ZdpSpWkAnsoHzNMra68Uyi?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'Girth Ad 2 — Reverse Psychology angle',dateAdded:'2024-12-01'},
-      {id:'rma_s08',name:'Static 8 — Girth Enhancement (Emotional Pain Point)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/116q3Vj-DSVvjRxKCJWSdElgaaS_-iLeL?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'Girth Ad 3 — Emotional Pain Point angle',dateAdded:'2024-12-01'},
-      {id:'rma_s09',name:'Static 9 — Girth Enhancement (Time Contrast)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/1CFk71JTsQ9ztpuaONagu8zI6O4xw8Wpd?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'Girth Ad 4 — Time Contrast angle',dateAdded:'2024-12-01'},
-      {id:'rma_s10',name:'Static 10 — Girth Enhancement (ROI Framing)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/1UUGnIe-gf1XvI0z4ESfiPQhuXeLjb4_E?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'Girth Ad 5 — ROI Framing angle',dateAdded:'2024-12-01'},
-      {id:'rma_s11',name:'Static 11 — LaserMe + Hydro Deluxe (Career Edge)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/15WjWQFckAroVj9TWlTGDnNGr8TW2fl6F?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'LaserMe Ad 1 — Career Edge angle',dateAdded:'2024-12-01'},
-      {id:'rma_s12',name:'Static 12 — LaserMe + Hydro Deluxe (Dating Market)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/1dbyP1kBJuuYUmBE2vaTutAohhSbTbkJy?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'LaserMe Ad 2 — Dating Market angle',dateAdded:'2024-12-01'},
-      {id:'rma_s13',name:'Static 13 — LaserMe + Hydro Deluxe (Compound Prevention)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/1qOi4LV7c73mCJp5cOMRgXa7_aYaHfzU3?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'LaserMe Ad 3 — Compound Prevention angle',dateAdded:'2024-12-01'},
-      {id:'rma_s14',name:'Static 14 — LaserMe + Hydro Deluxe (Social Proof)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/1HfG3Dwyrv6r7KA5cIXKD_BHJAg4bk7s9?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'LaserMe Ad 4 — Social Proof angle',dateAdded:'2024-12-01'},
-      {id:'rma_s15',name:'Static 15 — LaserMe + Hydro Deluxe (Comparison)',type:'graphic',status:'done',driveLink:'https://drive.google.com/drive/folders/1o37_XSnw-lQClkn3Tof2VpAXOT15N_JM?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'LaserMe Ad 5 — Comparison angle',dateAdded:'2024-12-01'},
+      {id:'rma_s01',name:'Static 1 — P Shot (Loss Aversion)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/1sGyvPlAl6T2z_gXCmD6YBcpA_XmDAnD7?usp=sharing',month:'2024-12',assignee:'Soumya GD',notes:'P Shot Ad 1 — Loss Aversion angle',dateAdded:'2024-12-01'},
+      {id:'rma_s02',name:'Static 2 — P Shot (Identity)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/1baokz9vgrPY2em5HHVm0JJK0ehFL6Gq_?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'P Shot Ad 2 — Identity angle',dateAdded:'2024-12-01'},
+      {id:'rma_s03',name:'Static 3 — P Shot (Social Comparison)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/1jZ7yNaGjdNHJ_aST2lxOUsFn1TqtbyIU?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'P Shot Ad 3 — Social Comparison angle',dateAdded:'2024-12-01'},
+      {id:'rma_s04',name:'Static 4 — P Shot (Economic Reframing)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/1Lgnn2qWej80VwV11PcWvb0pPyvNQJlo4?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'P Shot Ad 4 — Economic Reframing angle',dateAdded:'2024-12-01'},
+      {id:'rma_s05',name:'Static 5 — P Shot (Urgency)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/1eswAku-u60TtO9goqUVD_Wmw2tDhfiY6?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'P Shot Ad 5 — Urgency angle',dateAdded:'2024-12-01'},
+      {id:'rma_s06',name:'Static 6 — Girth Enhancement (Unfair Advantage)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/1lMyZgckmtTmd6uMn_Wm0TeEu35igGY3T?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'Girth Ad 1 — Unfair Advantage angle',dateAdded:'2024-12-01'},
+      {id:'rma_s07',name:'Static 7 — Girth Enhancement (Reverse Psychology)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/1tSutPOiDc0ZdpSpWkAnsoHzNMra68Uyi?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'Girth Ad 2 — Reverse Psychology angle',dateAdded:'2024-12-01'},
+      {id:'rma_s08',name:'Static 8 — Girth Enhancement (Emotional Pain Point)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/116q3Vj-DSVvjRxKCJWSdElgaaS_-iLeL?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'Girth Ad 3 — Emotional Pain Point angle',dateAdded:'2024-12-01'},
+      {id:'rma_s09',name:'Static 9 — Girth Enhancement (Time Contrast)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/1CFk71JTsQ9ztpuaONagu8zI6O4xw8Wpd?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'Girth Ad 4 — Time Contrast angle',dateAdded:'2024-12-01'},
+      {id:'rma_s10',name:'Static 10 — Girth Enhancement (ROI Framing)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/1UUGnIe-gf1XvI0z4ESfiPQhuXeLjb4_E?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'Girth Ad 5 — ROI Framing angle',dateAdded:'2024-12-01'},
+      {id:'rma_s11',name:'Static 11 — LaserMe + Hydro Deluxe (Career Edge)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/15WjWQFckAroVj9TWlTGDnNGr8TW2fl6F?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'LaserMe Ad 1 — Career Edge angle',dateAdded:'2024-12-01'},
+      {id:'rma_s12',name:'Static 12 — LaserMe + Hydro Deluxe (Dating Market)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/1dbyP1kBJuuYUmBE2vaTutAohhSbTbkJy?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'LaserMe Ad 2 — Dating Market angle',dateAdded:'2024-12-01'},
+      {id:'rma_s13',name:'Static 13 — LaserMe + Hydro Deluxe (Compound Prevention)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/1qOi4LV7c73mCJp5cOMRgXa7_aYaHfzU3?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'LaserMe Ad 3 — Compound Prevention angle',dateAdded:'2024-12-01'},
+      {id:'rma_s14',name:'Static 14 — LaserMe + Hydro Deluxe (Social Proof)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/1HfG3Dwyrv6r7KA5cIXKD_BHJAg4bk7s9?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'LaserMe Ad 4 — Social Proof angle',dateAdded:'2024-12-01'},
+      {id:'rma_s15',name:'Static 15 — LaserMe + Hydro Deluxe (Comparison)',type:'graphic',status:'posted',driveLink:'https://drive.google.com/drive/folders/1o37_XSnw-lQClkn3Tof2VpAXOT15N_JM?usp=drive_link',month:'2024-12',assignee:'Soumya GD',notes:'LaserMe Ad 5 — Comparison angle',dateAdded:'2024-12-01'},
 
       // ── December 2024 — Reels 1–10 ──
-      {id:'rma_r01',name:'Reel 1 — The Confidence Question',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1vMsJ3_-34FxqY-DI45jEaEg5d8MRQ82T/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 1: P-Shot / male enhancement confidence',dateAdded:'2024-12-01'},
-      {id:'rma_r02',name:'Reel 2 — The Surgery Alternative',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1bBCwnELD64yiJJAMrldYJGUU_a2N7Gl8/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 2: Non-surgical enhancement vs failed surgery',dateAdded:'2024-12-01'},
-      {id:'rma_r03',name:'Reel 3 — The Performance Fix',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1UzyzkEB8GA6gQ7rkbtjeQa9sgptDCOHK/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 3: ED protocol and confidence',dateAdded:'2024-12-01'},
-      {id:'rma_r04',name:'Reel 4 — The Size Solution',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/19eyyhQeVzWK-nCNWdHJUiPyhcQDl-xfW/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 4: Non-surgical size enhancement with fillers',dateAdded:'2024-12-01'},
-      {id:'rma_r05',name:'Reel 5 — The Stamina Story',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1nhUWSYmymz_WJen5AnfwMudguKvVL4Jf/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 5: PE treatment and stamina',dateAdded:'2024-12-01'},
-      {id:'rma_r06',name:'Reel 6 — The Science of Enhancement',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1EMC5icmwxbVSYXbYS-gO7h7b_O2ggE3Z/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 6: P-Shot and PRP science',dateAdded:'2024-12-01'},
-      {id:'rma_r07',name:'Reel 7 — The Age Solution',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1_dDFC-R-WqXra63WJYT9BDR7fCHCeuvM/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 7: Age-related ED and regenerative treatments',dateAdded:'2024-12-01'},
-      {id:'rma_r08',name:'Reel 8 — The Natural Look',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1eO7SJf6IYV0JKH6803RxXGsqJHbAG7cK/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 8: Natural-looking enhancement results',dateAdded:'2024-12-01'},
-      {id:'rma_r09',name:'Reel 9 — The Recovery Reality',type:'reel',status:'review',driveLink:'https://drive.google.com/file/d/1t5IAqLMqU_ZIO52t-XTVDBnpuG06rkuA/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 9: Zero downtime enhancement vs surgery — edited, pending posting',dateAdded:'2024-12-01'},
-      {id:'rma_r10',name:'Reel 10 — The Relationship Saver',type:'reel',status:'review',driveLink:'https://drive.google.com/file/d/1XWp9-PuPZ-O4wrchnLiplBUQDdZrcAlv/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 10: Performance issues & relationships — edited, pending posting',dateAdded:'2024-12-01'},
+      {id:'rma_r01',name:'Reel 1 — The Confidence Question',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1vMsJ3_-34FxqY-DI45jEaEg5d8MRQ82T/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 1: P-Shot / male enhancement confidence',dateAdded:'2024-12-01'},
+      {id:'rma_r02',name:'Reel 2 — The Surgery Alternative',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1bBCwnELD64yiJJAMrldYJGUU_a2N7Gl8/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 2: Non-surgical enhancement vs failed surgery',dateAdded:'2024-12-01'},
+      {id:'rma_r03',name:'Reel 3 — The Performance Fix',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1UzyzkEB8GA6gQ7rkbtjeQa9sgptDCOHK/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 3: ED protocol and confidence',dateAdded:'2024-12-01'},
+      {id:'rma_r04',name:'Reel 4 — The Size Solution',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/19eyyhQeVzWK-nCNWdHJUiPyhcQDl-xfW/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 4: Non-surgical size enhancement with fillers',dateAdded:'2024-12-01'},
+      {id:'rma_r05',name:'Reel 5 — The Stamina Story',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1nhUWSYmymz_WJen5AnfwMudguKvVL4Jf/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 5: PE treatment and stamina',dateAdded:'2024-12-01'},
+      {id:'rma_r06',name:'Reel 6 — The Science of Enhancement',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1EMC5icmwxbVSYXbYS-gO7h7b_O2ggE3Z/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 6: P-Shot and PRP science',dateAdded:'2024-12-01'},
+      {id:'rma_r07',name:'Reel 7 — The Age Solution',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1_dDFC-R-WqXra63WJYT9BDR7fCHCeuvM/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 7: Age-related ED and regenerative treatments',dateAdded:'2024-12-01'},
+      {id:'rma_r08',name:'Reel 8 — The Natural Look',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1eO7SJf6IYV0JKH6803RxXGsqJHbAG7cK/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 8: Natural-looking enhancement results',dateAdded:'2024-12-01'},
+      {id:'rma_r09',name:'Reel 9 — The Recovery Reality',type:'reel',status:'edited',driveLink:'https://drive.google.com/file/d/1t5IAqLMqU_ZIO52t-XTVDBnpuG06rkuA/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 9: Zero downtime enhancement vs surgery — edited, pending posting',dateAdded:'2024-12-01'},
+      {id:'rma_r10',name:'Reel 10 — The Relationship Saver',type:'reel',status:'edited',driveLink:'https://drive.google.com/file/d/1XWp9-PuPZ-O4wrchnLiplBUQDdZrcAlv/view?usp=drive_link',month:'2024-12',assignee:'',notes:'Script 10: Performance issues & relationships — edited, pending posting',dateAdded:'2024-12-01'},
 
       // ── January 2026 — Reels 11–22 (posted / edited / in editing) ──
-      {id:'rma_r11',name:'Reel 11 — LaserMe Skin Rejuvenation',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1DiybArxmI4-uE0t-x0Z_2hxp6Fin9GPH/view?usp=drive_link',month:'2026-01',assignee:'',notes:'LaserMe treatment — posted',dateAdded:'2026-01-05'},
-      {id:'rma_r12',name:'Reel 12 — Melanox Dark Spots',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1ViGlqkOTnTyxY5_BPBeIhEIqzrUwAztJ/view?usp=drive_link',month:'2026-01',assignee:'',notes:'Melanox + LaserMe for hyperpigmentation — posted',dateAdded:'2026-01-05'},
-      {id:'rma_r13',name:'Reel 13 — The Men\'s Facial',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1OB4YmR2105hlCT5BrrS80fWmh4QypN09/view?usp=drive_link',month:'2026-01',assignee:'',notes:'Script 13: Hydro Deluxe Man for men\'s skin — posted',dateAdded:'2026-01-08'},
-      {id:'rma_r14',name:'Reel 14 — The Pore Perfector',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1RS7vFUgb-5Oez-TReJqMFJ4FnljxKjtQ/view?usp=drive_link',month:'2026-01',assignee:'',notes:'Script 14: PHA Touch + LaserMe for large pores — posted',dateAdded:'2026-01-08'},
-      {id:'rma_r15',name:'Reel 15 — The Glow Up',type:'reel',status:'pending',driveLink:'https://drive.google.com/drive/folders/1uQUCLvyCxROFfAa6Z_CbII2sHXYi2zkk?usp=sharing',month:'2026-01',assignee:'',notes:'Script 15: Hydro Deluxe for celebrity glow — sent for editing',dateAdded:'2026-01-10'},
-      {id:'rma_r16',name:'Reel 16 — Intro (Allen)',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/16IDlPLWZAk8ml2loE5OMF2pXtRPeLtwh/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — posted',dateAdded:'2026-01-12'},
-      {id:'rma_r17',name:'Reel 17 — Intro (Allen)',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1YTxubNI-AwPP0uAO9N-WULMnBXUxb_Fz/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — posted',dateAdded:'2026-01-12'},
-      {id:'rma_r18',name:'Reel 18 — Intro (Allen)',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1pvRgglPhgMqyYEQP0ne27f_8e60sRctb/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — posted',dateAdded:'2026-01-12'},
-      {id:'rma_r19',name:'Reel 19 — Intro (Allen)',type:'reel',status:'review',driveLink:'https://drive.google.com/file/d/1H6U_GhQCXEPmZEN-0HqpWjGDk17k1m6f/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — edited, pending posting',dateAdded:'2026-01-15'},
-      {id:'rma_r20',name:'Reel 20 — Intro (Allen)',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1fvfkJhNHBPm2zjn5YuUYXVJMmoV2q8P7/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — posted',dateAdded:'2026-01-15'},
-      {id:'rma_r21',name:'Reel 21 — Intro (Allen)',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1RQjAfDIDfD6nAnb3W_QB4lD171-wKZ6l/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — posted',dateAdded:'2026-01-18'},
-      {id:'rma_r22',name:'Reel 22 — Intro (Allen)',type:'reel',status:'done',driveLink:'https://drive.google.com/file/d/1spJCM2eOk2tq4vclwMRnNrJUmPgNQYVB/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — posted',dateAdded:'2026-01-18'},
-      {id:'rma_r24i',name:'Reel 24 — Intro (Allen)',type:'reel',status:'pending',driveLink:'',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — sent for editing',dateAdded:'2026-01-20'},
-      {id:'rma_r25i',name:'Reel 25 — Intro (Allen)',type:'reel',status:'pending',driveLink:'',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — sent for editing',dateAdded:'2026-01-20'},
-      {id:'rma_r26i',name:'Reel 26 — Intro (Allen)',type:'reel',status:'pending',driveLink:'https://drive.google.com/drive/folders/1BzAghSu6s2-cfQlkB2aydXJN-07xry6x?usp=sharing',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — sent for editing',dateAdded:'2026-01-20'},
+      {id:'rma_r11',name:'Reel 11 — LaserMe Skin Rejuvenation',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1DiybArxmI4-uE0t-x0Z_2hxp6Fin9GPH/view?usp=drive_link',month:'2026-01',assignee:'',notes:'LaserMe treatment — posted',dateAdded:'2026-01-05'},
+      {id:'rma_r12',name:'Reel 12 — Melanox Dark Spots',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1ViGlqkOTnTyxY5_BPBeIhEIqzrUwAztJ/view?usp=drive_link',month:'2026-01',assignee:'',notes:'Melanox + LaserMe for hyperpigmentation — posted',dateAdded:'2026-01-05'},
+      {id:'rma_r13',name:'Reel 13 — The Men\'s Facial',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1OB4YmR2105hlCT5BrrS80fWmh4QypN09/view?usp=drive_link',month:'2026-01',assignee:'',notes:'Script 13: Hydro Deluxe Man for men\'s skin — posted',dateAdded:'2026-01-08'},
+      {id:'rma_r14',name:'Reel 14 — The Pore Perfector',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1RS7vFUgb-5Oez-TReJqMFJ4FnljxKjtQ/view?usp=drive_link',month:'2026-01',assignee:'',notes:'Script 14: PHA Touch + LaserMe for large pores — posted',dateAdded:'2026-01-08'},
+      {id:'rma_r15',name:'Reel 15 — The Glow Up',type:'reel',status:'sent-editing',driveLink:'https://drive.google.com/drive/folders/1uQUCLvyCxROFfAa6Z_CbII2sHXYi2zkk?usp=sharing',month:'2026-01',assignee:'',notes:'Script 15: Hydro Deluxe for celebrity glow — sent for editing',dateAdded:'2026-01-10'},
+      {id:'rma_r16',name:'Reel 16 — Intro (Allen)',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/16IDlPLWZAk8ml2loE5OMF2pXtRPeLtwh/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — posted',dateAdded:'2026-01-12'},
+      {id:'rma_r17',name:'Reel 17 — Intro (Allen)',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1YTxubNI-AwPP0uAO9N-WULMnBXUxb_Fz/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — posted',dateAdded:'2026-01-12'},
+      {id:'rma_r18',name:'Reel 18 — Intro (Allen)',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1pvRgglPhgMqyYEQP0ne27f_8e60sRctb/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — posted',dateAdded:'2026-01-12'},
+      {id:'rma_r19',name:'Reel 19 — Intro (Allen)',type:'reel',status:'edited',driveLink:'https://drive.google.com/file/d/1H6U_GhQCXEPmZEN-0HqpWjGDk17k1m6f/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — edited, pending posting',dateAdded:'2026-01-15'},
+      {id:'rma_r20',name:'Reel 20 — Intro (Allen)',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1fvfkJhNHBPm2zjn5YuUYXVJMmoV2q8P7/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — posted',dateAdded:'2026-01-15'},
+      {id:'rma_r21',name:'Reel 21 — Intro (Allen)',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1RQjAfDIDfD6nAnb3W_QB4lD171-wKZ6l/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — posted',dateAdded:'2026-01-18'},
+      {id:'rma_r22',name:'Reel 22 — Intro (Allen)',type:'reel',status:'posted',driveLink:'https://drive.google.com/file/d/1spJCM2eOk2tq4vclwMRnNrJUmPgNQYVB/view?usp=drive_link',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — posted',dateAdded:'2026-01-18'},
+      {id:'rma_r24i',name:'Reel 24 — Intro (Allen)',type:'reel',status:'sent-editing',driveLink:'',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — sent for editing',dateAdded:'2026-01-20'},
+      {id:'rma_r25i',name:'Reel 25 — Intro (Allen)',type:'reel',status:'sent-editing',driveLink:'',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — sent for editing',dateAdded:'2026-01-20'},
+      {id:'rma_r26i',name:'Reel 26 — Intro (Allen)',type:'reel',status:'sent-editing',driveLink:'https://drive.google.com/drive/folders/1BzAghSu6s2-cfQlkB2aydXJN-07xry6x?usp=sharing',month:'2026-01',assignee:'Allen',notes:'Intro reel by Allen — sent for editing',dateAdded:'2026-01-20'},
 
       // ── Future Batch — Scripts 21–30 (sent for editing) ──
-      {id:'rma_sc21',name:'Script 21 — The Confidence Clinic',type:'reel',status:'pending',driveLink:'https://drive.google.com/drive/folders/18HnMq7Tvtr2AwachDdfD2H-MAsnpJFdd?usp=sharing',month:'',assignee:'',notes:'Confidence through enhancement and skin treatments — sent for editing',dateAdded:'2026-01-25'},
-      {id:'rma_sc22',name:'Script 22 — The Medical-Grade Difference',type:'reel',status:'pending',driveLink:'https://drive.google.com/drive/folders/1lvgefE_nVtHlLBaaT8Kh7lj5afkGuimS?usp=sharing',month:'',assignee:'',notes:'Clinic treatments vs OTC products — sent for editing',dateAdded:'2026-01-25'},
-      {id:'rma_sc23',name:'Script 23 — The Privacy Promise',type:'reel',status:'pending',driveLink:'https://drive.google.com/drive/folders/1Q3vTc5Dhg8MgUanldoiylccxkLrTb0AO?usp=sharing',month:'',assignee:'',notes:'Confidentiality and discretion at Restart Medical — sent for editing',dateAdded:'2026-01-25'},
-      {id:'rma_sc24',name:'Script 24 — The Results Timeline',type:'reel',status:'pending',driveLink:'https://drive.google.com/drive/folders/1wvY3PJ8-OZcV0dxHNHSJtyw5gMUYjb-G?usp=sharing',month:'',assignee:'',notes:'How fast each treatment works — sent for editing',dateAdded:'2026-01-25'},
-      {id:'rma_sc25',name:'Script 25 — The Investment Value',type:'reel',status:'pending',driveLink:'https://drive.google.com/drive/folders/1Bb2CI_qKCXuF6oeghZ0XioW1KGNZYy6R?usp=sharing',month:'',assignee:'',notes:'Why treatments are an investment in quality of life — sent for editing',dateAdded:'2026-01-25'},
-      {id:'rma_sc26',name:'Script 26 — The Couples Treatment',type:'reel',status:'pending',driveLink:'https://drive.google.com/drive/folders/1BzAghSu6s2-cfQlkB2aydXJN-07xry6x?usp=sharing',month:'',assignee:'',notes:'Couples booking enhancement and skin treatments — sent for editing',dateAdded:'2026-01-25'},
-      {id:'rma_sc27',name:'Script 27 — The Science-Backed Approach',type:'reel',status:'pending',driveLink:'https://drive.google.com/drive/folders/12zUN8lJHVx9bYBF6h9GPnBglK0MBz7RI?usp=sharing',month:'',assignee:'',notes:'Evidence-based treatments: LaserMe, P-Shot, Hydro Deluxe — sent for editing',dateAdded:'2026-01-25'},
-      {id:'rma_sc28',name:'Script 28 — The Maintenance Plan',type:'reel',status:'pending',driveLink:'https://drive.google.com/drive/folders/1XYe047gskVdlkyu0RgS5zVNFil8v7bQS?usp=sharing',month:'',assignee:'',notes:'Aftercare and long-term maintenance — sent for editing',dateAdded:'2026-01-25'},
-      {id:'rma_sc29',name:'Script 29 — The First Step',type:'reel',status:'pending',driveLink:'https://drive.google.com/drive/folders/1zkxR46quhRzokGuxN3atZpLFF4IGvynk?usp=sharing',month:'',assignee:'',notes:'Low-pressure consultation and planning — sent for editing',dateAdded:'2026-01-25'},
-      {id:'rma_sc30',name:'Script 30 — The Restart Promise',type:'reel',status:'pending',driveLink:'https://drive.google.com/drive/folders/1SBFu1nwLd4mJ-jfg50KByW0fKtayZ2Mz?usp=sharing',month:'',assignee:'',notes:'Restart Medical values and transformation promise — sent for editing',dateAdded:'2026-01-25'},
+      {id:'rma_sc21',name:'Script 21 — The Confidence Clinic',type:'reel',status:'sent-editing',driveLink:'https://drive.google.com/drive/folders/18HnMq7Tvtr2AwachDdfD2H-MAsnpJFdd?usp=sharing',month:'',assignee:'',notes:'Confidence through enhancement and skin treatments — sent for editing',dateAdded:'2026-01-25'},
+      {id:'rma_sc22',name:'Script 22 — The Medical-Grade Difference',type:'reel',status:'sent-editing',driveLink:'https://drive.google.com/drive/folders/1lvgefE_nVtHlLBaaT8Kh7lj5afkGuimS?usp=sharing',month:'',assignee:'',notes:'Clinic treatments vs OTC products — sent for editing',dateAdded:'2026-01-25'},
+      {id:'rma_sc23',name:'Script 23 — The Privacy Promise',type:'reel',status:'sent-editing',driveLink:'https://drive.google.com/drive/folders/1Q3vTc5Dhg8MgUanldoiylccxkLrTb0AO?usp=sharing',month:'',assignee:'',notes:'Confidentiality and discretion at Restart Medical — sent for editing',dateAdded:'2026-01-25'},
+      {id:'rma_sc24',name:'Script 24 — The Results Timeline',type:'reel',status:'sent-editing',driveLink:'https://drive.google.com/drive/folders/1wvY3PJ8-OZcV0dxHNHSJtyw5gMUYjb-G?usp=sharing',month:'',assignee:'',notes:'How fast each treatment works — sent for editing',dateAdded:'2026-01-25'},
+      {id:'rma_sc25',name:'Script 25 — The Investment Value',type:'reel',status:'sent-editing',driveLink:'https://drive.google.com/drive/folders/1Bb2CI_qKCXuF6oeghZ0XioW1KGNZYy6R?usp=sharing',month:'',assignee:'',notes:'Why treatments are an investment in quality of life — sent for editing',dateAdded:'2026-01-25'},
+      {id:'rma_sc26',name:'Script 26 — The Couples Treatment',type:'reel',status:'sent-editing',driveLink:'https://drive.google.com/drive/folders/1BzAghSu6s2-cfQlkB2aydXJN-07xry6x?usp=sharing',month:'',assignee:'',notes:'Couples booking enhancement and skin treatments — sent for editing',dateAdded:'2026-01-25'},
+      {id:'rma_sc27',name:'Script 27 — The Science-Backed Approach',type:'reel',status:'sent-editing',driveLink:'https://drive.google.com/drive/folders/12zUN8lJHVx9bYBF6h9GPnBglK0MBz7RI?usp=sharing',month:'',assignee:'',notes:'Evidence-based treatments: LaserMe, P-Shot, Hydro Deluxe — sent for editing',dateAdded:'2026-01-25'},
+      {id:'rma_sc28',name:'Script 28 — The Maintenance Plan',type:'reel',status:'sent-editing',driveLink:'https://drive.google.com/drive/folders/1XYe047gskVdlkyu0RgS5zVNFil8v7bQS?usp=sharing',month:'',assignee:'',notes:'Aftercare and long-term maintenance — sent for editing',dateAdded:'2026-01-25'},
+      {id:'rma_sc29',name:'Script 29 — The First Step',type:'reel',status:'sent-editing',driveLink:'https://drive.google.com/drive/folders/1zkxR46quhRzokGuxN3atZpLFF4IGvynk?usp=sharing',month:'',assignee:'',notes:'Low-pressure consultation and planning — sent for editing',dateAdded:'2026-01-25'},
+      {id:'rma_sc30',name:'Script 30 — The Restart Promise',type:'reel',status:'sent-editing',driveLink:'https://drive.google.com/drive/folders/1SBFu1nwLd4mJ-jfg50KByW0fKtayZ2Mz?usp=sharing',month:'',assignee:'',notes:'Restart Medical values and transformation promise — sent for editing',dateAdded:'2026-01-25'},
     ];
 
     // Auto-seed on first load
@@ -1031,123 +1043,147 @@
 
     // ==================== STATE ====================
     let currentClient = null;
-    let currentFilter = 'all';
-    let editingId = null;
+    let currentMonth  = null;   // null = no month selected yet; '' = Unscheduled
+    let editingId     = null;
 
-    const CLIENT_LABELS = {
-      hoogah: 'Hoogah',
-      restart: 'Restart Medical',
-      sidexside: 'SideXSide',
-      drsw: 'Dr Sw Clinics'
-    };
-
-    // ==================== CLIENT SELECTOR ====================
+    // ==================== CLIENT SELECTOR (Step 1) ====================
     function selectAssetClient(clientKey, pill) {
       currentClient = clientKey;
-      currentFilter = 'all';
+      currentMonth  = null;
       document.querySelectorAll('.client-pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
-      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-      document.querySelector('.filter-pill').classList.add('active');
+      document.getElementById('client-assets-panel').style.display = 'none';
       document.getElementById('no-client-placeholder').style.display = 'none';
+      renderMonthPills();
+      document.getElementById('month-selector').style.display = 'flex';
+    }
+
+    // ==================== MONTH SELECTOR (Step 2) ====================
+    function renderMonthPills() {
+      const assets  = getClientAssets(currentClient);
+      const months  = [...new Set(assets.map(a => a.month || ''))].sort();
+      const wrap    = document.getElementById('month-selector');
+      wrap.innerHTML = '<span class="month-selector-label">Month:</span>';
+      months.forEach(m => {
+        const btn = document.createElement('button');
+        btn.className   = 'month-pill';
+        btn.textContent = m ? fmtMonthFull(m) : 'Unscheduled';
+        btn.onclick     = () => selectAssetMonth(m, btn);
+        wrap.appendChild(btn);
+      });
+    }
+
+    function selectAssetMonth(month, pill) {
+      currentMonth = month;
+      document.querySelectorAll('.month-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
       document.getElementById('client-assets-panel').style.display = 'block';
       renderQuota();
       renderTable();
     }
 
     // ==================== QUOTA ====================
-    function currentMonthKey() {
-      const d = new Date();
-      return d.toISOString().slice(0, 7); // e.g. "2026-02"
-    }
-    function currentMonthLabel() {
-      const d = new Date();
-      return d.toLocaleString('default', { month: 'long', year: 'numeric' });
-    }
-    function monthLabel(m) {
+    function fmtMonthFull(m) {
       if (!m) return 'Unscheduled';
       const [y, mo] = m.split('-');
-      const d = new Date(+y, +mo - 1, 1);
-      return d.toLocaleString('default', { month: 'long', year: 'numeric' });
+      return new Date(+y, +mo - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' });
     }
 
     function renderQuota() {
-      const assets = getClientAssets(currentClient);
-      // Use current month first; if no assets this month, show latest month with data
-      let mon = currentMonthKey();
-      const reelsCur = assets.filter(a => a.type === 'reel' && a.month === mon).length;
-      const graphicsCur = assets.filter(a => a.type === 'graphic' && a.month === mon).length;
+      const assets   = getClientAssets(currentClient).filter(a => (a.month || '') === currentMonth);
+      const reels    = assets.filter(a => a.type === 'reel').length;
+      const graphics = assets.filter(a => a.type === 'graphic').length;
+      const label    = fmtMonthFull(currentMonth);
 
-      if (reelsCur === 0 && graphicsCur === 0) {
-        const months = [...new Set(assets.map(a => a.month).filter(Boolean))].sort();
-        if (months.length) mon = months[months.length - 1];
-      }
-
-      const reels = assets.filter(a => a.type === 'reel' && a.month === mon).length;
-      const graphics = assets.filter(a => a.type === 'graphic' && a.month === mon).length;
-      const label = monthLabel(mon);
-
-      const reelsPct = Math.min(100, Math.round((reels / 10) * 100));
+      const reelsPct    = Math.min(100, Math.round((reels    / 10) * 100));
       const graphicsPct = Math.min(100, Math.round((graphics / 15) * 100));
 
-      document.getElementById('quota-month-label').textContent = label;
+      document.getElementById('quota-month-label').textContent  = label;
       document.getElementById('quota-month-label2').textContent = label;
 
       const reelsEl = document.getElementById('reels-count');
       reelsEl.innerHTML = reels + ' <span>/ 10</span>';
-      if (reels >= 10) reelsEl.classList.add('quota-complete'); else reelsEl.classList.remove('quota-complete');
+      if (reels    >= 10) reelsEl.classList.add('quota-complete');    else reelsEl.classList.remove('quota-complete');
 
       const graphicsEl = document.getElementById('graphics-count');
       graphicsEl.innerHTML = graphics + ' <span>/ 15</span>';
       if (graphics >= 15) graphicsEl.classList.add('quota-complete'); else graphicsEl.classList.remove('quota-complete');
 
-      document.getElementById('reels-bar').style.width = reelsPct + '%';
+      document.getElementById('reels-bar').style.width    = reelsPct    + '%';
       document.getElementById('graphics-bar').style.width = graphicsPct + '%';
+
+      // Hide quota card if month has no scheduled assets (e.g. Unscheduled)
+      document.getElementById('quota-grid').style.display = currentMonth ? 'grid' : 'none';
     }
 
     // ==================== TABLE RENDER ====================
+    function byAssetOrder(a, b) {
+      // extract leading number from name (e.g. "Reel 3 —" → 3, "Static 11 —" → 11)
+      const na = parseInt((a.name.match(/\d+/) || [9999])[0]);
+      const nb = parseInt((b.name.match(/\d+/) || [9999])[0]);
+      return na - nb;
+    }
+
     function renderTable() {
-      if (!currentClient) return;
-      let assets = getClientAssets(currentClient);
-      if (currentFilter !== 'all') assets = assets.filter(a => a.type === currentFilter);
+      if (!currentClient || currentMonth === null) return;
 
-      const tbody = document.getElementById('assets-tbody');
-      const emptyEl = document.getElementById('assets-empty');
-      tbody.innerHTML = '';
+      const all      = getClientAssets(currentClient).filter(a => (a.month || '') === currentMonth);
+      const reels    = all.filter(a => a.type === 'reel').sort(byAssetOrder);
+      const graphics = all.filter(a => a.type === 'graphic').sort(byAssetOrder);
+      const others   = all.filter(a => a.type !== 'reel' && a.type !== 'graphic').sort(byAssetOrder);
 
-      if (assets.length === 0) {
-        emptyEl.style.display = 'block';
+      const wrap = document.getElementById('assets-sections');
+      wrap.innerHTML = '';
+
+      if (all.length === 0) {
+        wrap.innerHTML = `<div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2z"/></svg>
+          No assets for this month yet.<br><small>Click <strong>Add Asset</strong> to get started.</small>
+        </div>`;
         return;
       }
-      emptyEl.style.display = 'none';
 
-      // Sort: by month descending then name ascending
-      const sorted = [...assets].sort((a,b) => {
-        const ma = a.month || ''; const mb = b.month || '';
-        if (ma !== mb) return mb.localeCompare(ma);
-        return a.name.localeCompare(b.name, undefined, {numeric: true});
-      });
+      if (reels.length)    wrap.appendChild(buildSection('🎬  Reels',              reels,    reels.length));
+      if (graphics.length) wrap.appendChild(buildSection('🖼  Graphic Creatives',  graphics, graphics.length));
+      if (others.length)   wrap.appendChild(buildSection('📦  Other Deliverables', others,   others.length));
+    }
 
-      sorted.forEach((asset, i) => {
+    function buildSection(title, assets, count) {
+      const section = document.createElement('div');
+      section.className = 'asset-section';
+
+      section.innerHTML = `<div class="asset-section-header">${title}<span class="asset-section-count">${count}</span></div>`;
+
+      const tableWrap = document.createElement('div');
+      tableWrap.className = 'assets-table-wrap glass';
+
+      const table = document.createElement('table');
+      table.innerHTML = `<thead><tr>
+        <th style="width:40px;">#</th>
+        <th>Asset Name</th>
+        <th>Status</th>
+        <th>Drive Link</th>
+        <th>Notes</th>
+        <th style="width:60px;"></th>
+      </tr></thead>`;
+
+      const tbody = document.createElement('tbody');
+      assets.forEach((asset, i) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td style="color:rgba(255,255,255,0.3);font-size:12px;">${i + 1}</td>
           <td>
             <div style="font-weight:500;">${esc(asset.name)}</div>
             ${asset.assignee ? `<div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">→ ${esc(asset.assignee)}</div>` : ''}
-            ${asset.notes ? `<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(asset.notes)}</div>` : ''}
           </td>
-          <td>${typeBadge(asset.type)}</td>
           <td>${statusPill(asset.status)}</td>
           <td>${asset.driveLink
-            ? `<a class="drive-link" href="${esc(asset.driveLink)}" target="_blank" rel="noopener">
-                Open
+            ? `<a class="drive-link" href="${esc(asset.driveLink)}" target="_blank" rel="noopener">Open
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               </a>`
             : '<span class="no-link">—</span>'
           }</td>
-          <td style="color:rgba(255,255,255,0.45);font-size:13px;">${fmtMonth(asset.month)}</td>
-          <td style="color:rgba(255,255,255,0.3);font-size:12px;">${fmtDate(asset.dateAdded)}</td>
+          <td style="color:rgba(255,255,255,0.3);font-size:12px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(asset.notes || '')}</td>
           <td>
             <div class="row-actions">
               <button class="btn-icon" title="Edit" onclick="editAsset('${asset.id}')">
@@ -1157,27 +1193,31 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
               </button>
             </div>
-          </td>
-        `;
+          </td>`;
         tbody.appendChild(tr);
       });
+
+      table.appendChild(tbody);
+      tableWrap.appendChild(table);
+      section.appendChild(tableWrap);
+      return section;
     }
 
-    function typeBadge(type) {
-      const map = { reel: ['type-reel','🎬 Reel'], graphic: ['type-graphic','🖼 Graphic'], banner: ['type-banner','📐 Banner'], deliverable: ['type-deliverable','📦 Deliverable'] };
-      const [cls, label] = map[type] || ['type-deliverable', type];
-      return `<span class="type-badge ${cls}">${label}</span>`;
-    }
     function statusPill(s) {
-      const map = { done: ['status-done','Done'], review: ['status-review','In Review'], pending: ['status-pending','Pending'] };
-      const [cls, label] = map[s] || ['status-pending','Pending'];
+      const map = {
+        posted:       ['status-posted',        'Posted'],
+        edited:       ['status-edited',         'Edited'],
+        'sent-editing': ['status-sent-editing', 'Sent for Editing'],
+        pending:      ['status-pending',        'Pending'],
+      };
+      const [cls, label] = map[s] || ['status-pending', s || 'Pending'];
       return `<span class="status-pill ${cls}">${label}</span>`;
     }
+
     function fmtMonth(m) {
       if (!m) return '—';
       const [y, mo] = m.split('-');
-      const d = new Date(+y, +mo - 1, 1);
-      return d.toLocaleString('default', { month: 'short', year: 'numeric' });
+      return new Date(+y, +mo - 1, 1).toLocaleString('default', { month: 'short', year: 'numeric' });
     }
     function fmtDate(d) {
       if (!d) return '—';
@@ -1185,21 +1225,13 @@
     }
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-    // ==================== FILTER ====================
-    function setFilter(f, pill) {
-      currentFilter = f;
-      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      renderTable();
-    }
-
     // ==================== MODAL ====================
     function openModal(prefill) {
       editingId = null;
       document.getElementById('modal-title').textContent = 'Add Asset';
       document.getElementById('f-name').value = '';
       document.getElementById('f-type').value = '';
-      document.getElementById('f-status').value = 'pending';
+      document.getElementById('f-status').value = 'posted';
       document.getElementById('f-link').value = '';
       document.getElementById('f-month').value = currentMonthKey();
       document.getElementById('f-assignee').value = '';
@@ -1244,7 +1276,7 @@
         id: editingId || ('a_' + Date.now() + '_' + Math.random().toString(36).slice(2,6)),
         name,
         type,
-        status: document.getElementById('f-status').value || 'pending',
+        status: document.getElementById('f-status').value || 'posted',
         driveLink: document.getElementById('f-link').value.trim(),
         month: document.getElementById('f-month').value || currentMonthKey(),
         assignee: document.getElementById('f-assignee').value,
