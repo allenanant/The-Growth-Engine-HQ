@@ -8,7 +8,7 @@
 
 ## Project Overview
 
-This is a **static client management system** built for Allen Anant Thomas, a marketing consultant and founder of SideXSide (a campus safety SaaS). The system acts as a "digital clone" - an AI-powered workspace where Claude (this assistant) maintains comprehensive records of 6 active clients, tracks deliverables, monitors revenue (~$8,190/month), and manages a 3-person team.
+This is a **static client management system** built for Allen Anant Thomas, a marketing consultant and founder of The Growth Engine. The system acts as a "digital clone" - an AI-powered workspace where Claude (this assistant) maintains comprehensive records of 6 active clients, tracks deliverables, monitors revenue (~$8,190/month), and manages a 3-person team.
 
 **Key Characteristics:**
 - **Zero dependencies** - No build process, no package managers, no frameworks

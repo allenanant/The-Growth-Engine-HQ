@@ -80,7 +80,7 @@ I've created comprehensive profiles for each client in their respective folders:
 - Assets: Video AI (492MB), Audio AI (34MB)
 - Monthly: £850 (~$1,050 USD)
 
-### ✅ SideXSide (Your Business)
+### ✅ SideXSide (Client)
 **Profile Location:** `/SideXSide Business - Organized/`
 **Created Files:**
 - `EXECUTIVE_SUMMARY.md` - 10-min investor brief
@@ -298,7 +298,7 @@ This becomes my "brain" - your digital clone workspace.
 **Total Active Clients:** 6
 **Monthly Revenue:** $8,190 USD ($98,280 annually)
 **Team Size:** 3 (You + Anthony + Abhijeet)
-**Biggest Opportunity:** SideXSide (own business, high SaaS potential)
+**Biggest Opportunity:** SideXSide (campus safety SaaS client)
 **Largest Client:** Dr Sw Clinics (£850/month, 65MB project)
 **Newest Client:** Hoogah (contract Jan 31, 2026)
 
