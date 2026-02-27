@@ -111,7 +111,7 @@
 - ✅ Project Plan documented
 - ⏳ Funnel in development
 - ✅ Social media content sent to Khushi (pending approval)
-- 🔥 Ad campaigns launching in 1-2 days
+- 🔥 Meta ad campaigns launching in 1-2 days
 
 **Immediate Next Steps:**
 1. ✅ Complete Event Organizer landing page (READY)
@@ -122,7 +122,7 @@
 6. ⏳ Khushi to get WordPress Business plan + domain login details
 7. ⏳ Deploy Hoogah website on WordPress via GitHub
 8. Set up Calendly booking (Khushi 8am CT)
-9. 🔥 **Launch Meta + LinkedIn test ads in 1-2 days** ($1K-2K/month budget)
+9. 🔥 **Launch Meta test ads in 1-2 days** ($1K-2K/month budget)
 10. Book demo calls with event planners
 
 **Target KPIs:**
