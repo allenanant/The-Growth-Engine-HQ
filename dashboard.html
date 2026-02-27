@@ -967,7 +967,7 @@
     // Map Supabase snake_case row → camelCase asset object
     function rowToAsset(row) {
       return {
-        id:        row.id,
+        id:        String(row.id),   // always string so onclick comparisons work
         name:      row.name       || '',
         type:      row.type       || '',
         status:    row.status     || 'pending',
@@ -1323,7 +1323,7 @@
         const { error } = await db.from('assets').update(row).eq('id', editingId);
         if (!error) {
           const idx = currentAssets.findIndex(a => a.id === editingId);
-          if (idx >= 0) currentAssets[idx] = rowToAsset({ ...row, id: editingId, date_added: currentAssets[idx].dateAdded });
+          if (idx >= 0) currentAssets[idx] = rowToAsset({ ...row, id: editingId, date_added: currentAssets[idx].dateAdded || '' });
         }
       } else {
         const { data: inserted, error } = await db.from('assets').insert(row).select().single();
