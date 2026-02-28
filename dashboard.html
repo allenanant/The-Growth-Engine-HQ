@@ -1127,14 +1127,6 @@
       document.getElementById(tabName).classList.add('active');
       document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
       btn.classList.add('active');
-
-      const main = document.querySelector('.main');
-      // Desktop: reset the inner scroll of .main back to top
-      main.scrollTop = 0;
-      // Mobile: the body scrolls, so bring .main into view after the sidebar
-      if (window.innerWidth <= 900) {
-        main.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
     }
 
     // ==================== SUPABASE ====================
